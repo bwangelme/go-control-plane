@@ -16,6 +16,7 @@ package example
 import (
 	"time"
 
+	router "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/http/router/v3"
 	"google.golang.org/protobuf/types/known/anypb"
 	"google.golang.org/protobuf/types/known/durationpb"
 
@@ -36,7 +37,7 @@ const (
 	RouteName    = "local_route"
 	ListenerName = "listener_0"
 	ListenerPort = 10000
-	UpstreamHost = "www.envoyproxy.io"
+	UpstreamHost = "www.douban.com"
 	UpstreamPort = 80
 )
 
@@ -105,6 +106,7 @@ func makeRoute(routeName string, clusterName string) *route.RouteConfiguration {
 
 func makeHTTPListener(listenerName string, route string) *listener.Listener {
 	// HTTP filter configuration
+	routerConfig, _ := anypb.New(&router.Router{})
 	manager := &hcm.HttpConnectionManager{
 		CodecType:  hcm.HttpConnectionManager_AUTO,
 		StatPrefix: "http",
@@ -115,7 +117,8 @@ func makeHTTPListener(listenerName string, route string) *listener.Listener {
 			},
 		},
 		HttpFilters: []*hcm.HttpFilter{{
-			Name: wellknown.Router,
+			Name:       wellknown.Router,
+			ConfigType: &hcm.HttpFilter_TypedConfig{TypedConfig: routerConfig},
 		}},
 	}
 	pbst, err := anypb.New(manager)
