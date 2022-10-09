@@ -119,7 +119,8 @@ func (s *server) process(str stream.Stream, reqCh <-chan *discovery.DiscoveryReq
 		for _, r := range resp.GetRequest().ResourceNames {
 			lastResponse.resources[r] = struct{}{}
 		}
-		lastDiscoveryResponses[resp.GetRequest().TypeUrl] = lastResponse
+		typeURL := resp.GetRequest().TypeUrl
+		lastDiscoveryResponses[typeURL] = lastResponse
 
 		if s.callbacks != nil {
 			s.callbacks.OnStreamResponse(resp.GetContext(), streamID, resp.GetRequest(), out)
